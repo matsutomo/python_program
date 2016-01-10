@@ -14,7 +14,7 @@ MFCCとスペクトル重心はmfcc.pyにて
 
 """
 csvファイルに書き込む際のファイル名指定を忘れないこと！！！
-使用楽曲のパス指定は全てで3箇所！！！
+使用楽曲のパス指定は全てで2箇所！！！
 """
 
 import sys
@@ -76,7 +76,8 @@ def Prepare(fs, flength, fshift):
 ## 出力: フレーム化した音声
 def Get_Frames(wavfilepath, flength, fshift):
 
-    wavFilePath = "/home/matsui-pc/matsui/sound/newsound_section01~10/" + wavfilepath
+    # wavFilePath = "/home/matsui-pc/matsui/sound/newsound_section01~10/" + wavfilepath
+    wavFilePath = "/home/matsui-pc/matsui/learning_data_music/wav/" + wavfilepath
     wavefile = AudioFile.open(wavFilePath) # WAVファイルの読み込み
 
     # print len(wavefile)
@@ -182,11 +183,11 @@ def Chroma(frames):
 ## 出力:
 def Out_Chroma_last(feature_c, filename):
 
-    print filename + ":"
-    print "********************"
-    print "クロマの平均"
-    print feature_c
-    print "\n"
+    # print filename + ":"
+    # print "********************"
+    # print "クロマの平均"
+    # print feature_c
+    # print "\n"
 
     feature_c_csv = [0] # ファイル名とクロマ特徴量を同じ行に書き込むため
     feature_c_csv[0] = filename
@@ -194,11 +195,14 @@ def Out_Chroma_last(feature_c, filename):
     for f in feature_c:
         feature_c_csv.append(f) # 特徴量をリストに追加していく
 
+    # # 試験的
+    # feature_c_csv.append(feature_c)
+
     """ 上書きするために最初のファイル名を指定する """""
-    if filename == "01_01.wav":
-        fw = open("/home/matsui-pc/matsui/experiment_music/chroma/chroma_test.csv" ,"w") # 新しく書き込む
+    if filename == "no.1.wav":
+        fw = open("/home/matsui-pc/matsui/experiment_music/reg_analysis/chroma.csv" ,"w") # 新しく書き込む
     else:
-        fw = open("/home/matsui-pc/matsui/experiment_music/chroma/chroma_test.csv" ,"a") # 追加で書き込む
+        fw = open("/home/matsui-pc/matsui/experiment_music/reg_analysis/chroma.csv" ,"a") # 追加で書き込む
 
     csvWriter = csv.writer(fw) # csvファイルに書き込むための準備
     csvWriter.writerow(feature_c_csv) # ファイル名と特徴量をcsvファイルへ書き込む
@@ -290,6 +294,8 @@ if __name__ == '__main__':
     
     list_chroma_ave_all = [] # 各区間のクロマの平均を格納するリスト(1要素が1区間のクロマ平均)
 
+    list_chroma_1dim = [] # 試験的にクロマ12次元の平均を取って1次元にしたものを保存するリスト
+
     ### クロマベクトル用のフレーム長とフレームシフト
     F_LENGTH_CHROMA = 500
     F_SHIFT_CHROMA = 250
@@ -301,8 +307,8 @@ if __name__ == '__main__':
 
     print "〜楽曲のファイル名を取得〜"
     print "\n"
-    list_filename_sound = Get_File_Contents("/home/matsui-pc/matsui/sound/newsound_section01~10") # ファイル名をリスト型で取得
-    # list_filename_sound = Get_File_Contents("/home/matsui-pc/matsui/sound/sound_test2") # ファイル名をリスト型で取得
+    # list_filename_sound = Get_File_Contents("/home/matsui-pc/matsui/sound/newsound_section01~10") # ファイル名をリスト型で取得
+    list_filename_sound = Get_File_Contents("/home/matsui-pc/matsui/learning_data_music/wav") # ファイル名をリスト型で取得
 
     print "〜特徴量抽出準備〜"
     print "\n"
@@ -321,21 +327,38 @@ if __name__ == '__main__':
 
     ### クロマベクトルにより特徴量(平均)抽出
     for i in range(len(list_frames)):
-        list_chroma_ave_all.append(Chroma(list_frames[i]))
+        list_chroma_ave_all.append(Chroma_last(list_frames[i]))
 
-    print "\n"
-    print list_chroma_ave_all # 確認用
-    print len(list_chroma_ave_all) # 確認用
-    print len(list_chroma_ave_all[0]) # 確認用
+    # print "\n"
+    # print list_chroma_ave_all # 確認用
+    # print len(list_chroma_ave_all) # 確認用
+    # print len(list_chroma_ave_all[0]) # 確認用
 
-    ### 平均0分散1に正規化(各楽曲の各区間において)
+    # ### 5区間に分けてMFCCを抽出した場合
+    # ### 平均0分散1に正規化(各楽曲の各区間において)
+    # for i in range(len(list_chroma_ave_all)):
+    #     for j in range(len(list_chroma_ave_all[0])):
+    #         list_chroma_ave_all[i][j] = v_t.Normalization(list_chroma_ave_all[i][j])
+
+    ### 平均0分散1に正規化(各楽曲において)
     for i in range(len(list_chroma_ave_all)):
-        for j in range(len(list_chroma_ave_all[0])):
-            list_chroma_ave_all[i][j] = v_t.Normalization(list_chroma_ave_all[i][j])
+        list_chroma_ave_all[i] = v_t.Normalization(list_chroma_ave_all[i])
+
 
     ### 特徴量（各区間のクロマベクトルの平均）の出力
     for i in range(len(list_chroma_ave_all)):
-        Out_Chroma(list_chroma_ave_all[i], list_filename_sound[i])
+        Out_Chroma_last(list_chroma_ave_all[i], list_filename_sound[i])
+
+    # # 試験的にクロマ12次元を1次元にする（平均を取るだけなので正規化は行っていない）
+    # for i in range(len(list_chroma_ave_all)):
+    #     ave = np.average(list_chroma_ave_all[i]) # 平均をとる
+    #     list_chroma_1dim.append(ave)
+    #     print list_chroma_ave_all[i] # 確認用
+    #     print ave
+
+    # # 試験的に特徴量の出力(1次元)
+    # for i in range(len(list_chroma_1dim)):
+    #     Out_Chroma_last(list_chroma_1dim[i], list_filename_sound[i])
 
 
     ### 前回までのプログラム
