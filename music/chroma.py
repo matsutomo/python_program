@@ -6,6 +6,13 @@ PyMIRを使って様々な音響特徴量を求めてみるサンプルプログ
 """
 
 """
+クロマベクトルを求めるプログラム
+特徴量を抽出しcsvファイルに書き込む
+MFCCとスペクトル重心はmfcc.pyにて
+統合などはmusic.pyにて行う
+"""
+
+"""
 csvファイルに書き込む際のファイル名指定を忘れないこと！！！
 使用楽曲のパス指定は全てで3箇所！！！
 """
@@ -331,21 +338,20 @@ if __name__ == '__main__':
         Out_Chroma(list_chroma_ave_all[i], list_filename_sound[i])
 
 
-    sys.exit()
-    
-    ### 平均0分散1に正規化
-    for i in range(len(list_chroma_ave)):
-        # 	# print "元の値"
-        # 	# print list_chroma_ave[i]
-        list_chroma_ave[i] = v_t.Normalization(list_chroma_ave[i])
-    # 	# print "正規化"
-    # 	# print list_chroma_ave[i]
-
-    # ### 各楽曲の特徴量を次元ごとに平均0分散1に正規化 → できているか怪しい(11/13)
-    # Pre_Normalization(list_chroma_ave)
-
-    ### 特徴量(クロマベクトルの平均)出力
-    for i in range(len(list_chroma_ave)):
-        Out_Chroma(list_chroma_ave[i], list_filename_sound[i])
+    ### 前回までのプログラム
+    # ### 平均0分散1に正規化
+    # for i in range(len(list_chroma_ave)):
+    #     # 	# print "元の値"
+    #     # 	# print list_chroma_ave[i]
+    #     list_chroma_ave[i] = v_t.Normalization(list_chroma_ave[i])
+    # # 	# print "正規化"
+    # # 	# print list_chroma_ave[i]
+    #
+    # # ### 各楽曲の特徴量を次元ごとに平均0分散1に正規化 → できているか怪しい(11/13)
+    # # Pre_Normalization(list_chroma_ave)
+    #
+    # ### 特徴量(クロマベクトルの平均)出力
+    # for i in range(len(list_chroma_ave)):
+    #     Out_Chroma(list_chroma_ave[i], list_filename_sound[i])
 
 
